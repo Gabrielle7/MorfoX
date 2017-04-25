@@ -83,7 +83,6 @@ function ngrams(array){
 	var trigramas = {};
 	var gram;
 	var re = /([a-zA-Z\u00C0-\u017F ]|-?\d+([\.,]\d+)?%?)/gu;
-	console.log(array);
 	var text = decodeURIComponent(escape(String.fromCharCode.apply(null, array)));
 	var lines = text.toLowerCase().split(/\r?\n/);
 	for(var i = 0; i < lines.length; i++) {
