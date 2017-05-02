@@ -3,7 +3,7 @@ html, body{
 }
 
 body {
-    background-color: lightblue;
+	background-color: lightblue;
     text-align: center;
     margin: 0;
     padding: 0;
@@ -21,7 +21,7 @@ body {
 	text-align: center;
     font-weight: bold;
     color: #ffff99;
-    font-size: small;
+	font-size: small;
 }
 
 header {
@@ -29,11 +29,13 @@ header {
 	vertical-align: middle;
 	background-color: black;
 	padding: 4px;
+    width: 70%;
 }
 
 h1 {
     color: skyblue;
     margin: 10px;
+    font-size: 50px;
 }
 
 h3 {
@@ -64,8 +66,15 @@ p {
     padding: 4px;
 }
 
+#selectcod {
+    color: #ff0000;
+    margin: 10px 0 12px 0;
+    padding: 0 0 8px 0;
+    border-bottom: 1px solid black;
+}
+
 #inputFile {
-	margin: 0 0 20px 0;
+	margin: 0 0 10px 0;
 	text-align: center;
 }
 
@@ -73,14 +82,14 @@ p {
 	display: none;
 	font-weight: bold;
 	text-align: center;
-	padding: 20px;
+	padding: 15px;
 	color: #555;
-	border: 3px dashed #000;
+	border: 2px dashed black;
 }
 
 #dragFile.hover {
 	color: #00f;
-	border: 3px dashed #00f;
+	border: 2px dashed blue;
 }
 
 .overlay {

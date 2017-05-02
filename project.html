@@ -7,17 +7,26 @@
 		<link rel="stylesheet" href="layout.css">
 	</head> 
 	<body>
-		<title>Morfologia de Textos em Português</title>
+		<title>Morfox</title>
 		<div id='top'>
 			<header>
-				<h1>Extração de Características Morfológicas de Corpora</h1>
-				<h3>Análise de Textos em Português com Freeling</h3>
+				<h1> MORFOX </h1>
+				<h3>Portal WEB para Extração de Características Morfológicas <br> de Textos em Português com Freeling.</h3>
 			</header>
 			<div class="inputSlot">
+				<!--<div id='selectcod'>
+					Codificação
+					<select id="codificacao">
+						<option value="utf8">UTF-8</option>
+						<option value="latin1">Latin-1</option>
+					</select>
+				</div>-->
 				<label for="inputFile">Selecione o Arquivo:</label>
 				<input name="inputFile" id="inputFile" type="file">
+				
 				<div id="dragFile">Ou arraste-o para cá.</div>
 				<button type="submit" id="sendFile">Enviar Arquivo para Análise</button>
+				
 			</div>
 		</div>
 		<div class="overlay" id='overlayscreen'>

@@ -49,8 +49,8 @@ function loadFile(e){
 		file = e.target.files[0];
 	var reader = new FileReader();
 	reader.onload = function() {
-		var stream = FS.open('/freeling/file.txt', 'w+');
 		var dataview = new Uint8Array(reader.result);
+		var stream = FS.open('/freeling/file.txt', 'w+');
 		FS.write(stream, dataview, 0, dataview.length);
 		FS.close(stream);
 
@@ -83,25 +83,28 @@ function ngrams(array){
 	var trigramas = {};
 	var gram;
 	var re = /([a-zA-Z\u00C0-\u017F ]|-?\d+([\.,]\d+)?%?)/gu;
-	console.log(array);
-	var text = decodeURIComponent(escape(String.fromCharCode.apply(null, array)));
-	var lines = text.toLowerCase().split(/\r?\n/);
+	var text = decodeURIComponent(escape(String.fromCharCode.apply(this, array)));
+	var lines = text.toLowerCase().split(/\r\n|\r|\n/);
 	for(var i = 0; i < lines.length; i++) {
-		var line = lines[i].match(re).join("");
-		var words = line.split(" ");
-		for (var j = 0; j < words.length-1; j++){
-			gram = words.slice(j,j+2).join(" ");
-			if (bigramas.hasOwnProperty(gram))
-				bigramas[gram] += 1;
-			else
-				bigramas[gram] = 1;
-		}
-		for (var j = 0; j < words.length-2; j++){
-			gram = words.slice(j,j+3).join(" ");
-			if (trigramas.hasOwnProperty(gram))
-				trigramas[gram] += 1;
-			else
-				trigramas[gram] = 1;
+		if (lines[i] != ""){
+			var line = lines[i].match(re).join("");
+			var words = line.split(" ");
+			if (words.length > 0) {
+				for (var j = 0; j < words.length-1; j++){
+					gram = words.slice(j,j+2).join(" ");
+					if (bigramas.hasOwnProperty(gram))
+						bigramas[gram] += 1;
+					else
+						bigramas[gram] = 1;
+				}
+				for (var j = 0; j < words.length-2; j++){
+					gram = words.slice(j,j+3).join(" ");
+					if (trigramas.hasOwnProperty(gram))
+						trigramas[gram] += 1;
+					else
+						trigramas[gram] = 1;
+				}
+			}
 		}
 	}
 
