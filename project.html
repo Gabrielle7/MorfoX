@@ -4,7 +4,10 @@
 		<meta charset="UTF-8">
 		<script type="text/javascript" src="emscripten.js" charset="UTF-8"></script>
 		<script type="text/javascript" src="portal.js" charset="UTF-8"></script>
+		<script type="text/javascript" src="nouislider.js"></script>
+		<script type="text/javascript" src="wNumb.js"></script>
 		<link rel="stylesheet" href="layout.css">
+		<link rel="stylesheet" href="nouislider.css">
 	</head> 
 	<body>
 		<title>Morfox</title>
@@ -14,13 +17,6 @@
 				<h3>Portal WEB para Extração de Características Morfológicas <br> de Textos em Português com Freeling.</h3>
 			</header>
 			<div class="inputSlot">
-				<!--<div id='selectcod'>
-					Codificação
-					<select id="codificacao">
-						<option value="utf8">UTF-8</option>
-						<option value="latin1">Latin-1</option>
-					</select>
-				</div>-->
 				<label for="inputFile">Selecione o Arquivo:</label>
 				<input name="inputFile" id="inputFile" type="file">
 				
@@ -33,79 +29,71 @@
 			<div class="overlay-content" id='spinner'></div>
 			<div class="overlay-content" id='statusLabel'></div>
 		</div>
+		<div id='info'>
+			<br> <br> Informações:
+			<br> O arquivo submetido deve ter uma sentença por linha e estar em português.
+			<br> Serão exibidos as etiquetas morfológias e os lemas das palavras presentes nos textos, além dos unigramas, brigramas e trigramas encontrados.
+		</div>
 		<div id='box' class="outputSlot">
-            <div id="tagsBox" class="results">
-				<input id="slideTags" type="range" min="1" list="marks" oninput="document.getElementById('labelT').innerHTML = (this.value + '/' + (tags.length-1))" onchange="showTags(this.value)">
-				<label for='slideTags' id="labelT"></label>
+	        <div id="tagsBox" class="results">
+				<div id="sliderTags"></div>
 				<input type="search" id="searchTags" oninput="searchTags(this.value)">			
-				<h2>Etiquetas</h2>
+				<h2 id="tagLabel"></h2>
 				<p id="tagsText"></p>
 				<button type="button" id="downTags" onclick="downloadTags()">Download</button>
 			</div>
-            <div id="lemmasBox" class="results">
-				<input id="slideLemmas" type="range" min="1" list="marks" oninput="document.getElementById('labelL').innerHTML = (this.value + '/' + (lemmas.length-1))" onchange="showLemmas(this.value)">
-				<label for='slideLemmas' id="labelL"></label>
+	        <div id="lemmasBox" class="results">
+				<div id="sliderLemmas"></div>
 				<input type="search" id="searchLemma" oninput="searchLemmas(this.value)">
-				<h2>Lemas</h2>
+				<h2 id="lemmaLabel"></h2>
 				<p id="lemmasText"></p>
 				<button type="button" id="downLemmas" onclick="downloadLemmas()">Download</button>
 			</div>
 			<div id="wordsBox" class="results">
-				<input id="slideUni" type="range" min="1" list="marks" oninput="document.getElementById('labelU').innerHTML = (this.value + '/' + (words.length-1))" onchange="showWords(this.value)">
-				<label for='slideUni' id="labelU"></label>
-				<input type="search" id="searchWords" oninput="searchWords(this.value)">
-				<h2>Unigramas</h2>
+				<div id="sliderUni"></div>
+				<input type="search" id="searchWords" oninput="searchUnigram(this.value)">
+				<h2 id="uniLabel"></h2>
 				<p id="wordsText"></p>
-				<button type="button" id="downWords" onclick="downloadWords()">Download</button>
+				<button type="button" id="downWords" onclick="downloadUnigrams()">Download</button>
 			</div>
-            <div id="bigramBox" class="results">
-				<input id="slideBi" type="range" min="1" list="marks" oninput="document.getElementById('labelB').innerHTML = (this.value + '/' + bigramaSorted.length)" onchange="showBigram(this.value)">
-				<label for='slideBi' id="labelB"></label>	
+	        <div id="bigramBox" class="results">
+				<div id="sliderBi"></div>
 				<input type="search" id="searchBigram" oninput="searchBigram(this.value)">			
-				<h2>Bigramas</h2>
+				<h2 id="biLabel"></h2>
 				<p id="bigramasText"></p>
 				<button type="button" id="downBi" onclick="downloadBigrams()">Download</button>
 			</div>
-            <div id="trigramBox" class="results">
-				<input id="slideTri" type="range" min="1" list="marks" oninput="document.getElementById('labelTri').innerHTML = (this.value + '/' + trigramaSorted.length)" onchange="showTrigram(this.value)">
-				<label for='slideTri' id="labelTri"></label>
+	        <div id="trigramBox" class="results">
+				<div id="sliderTri"></div>
 				<input type="search" id="searchTrigram" oninput="searchTrigram(this.value)">				
-				<h2>Trigramas</h2>
+				<h2 id="triLabel"></h2>
 				<p id="trigramasText"></p>
 				<button type="button" id="downTri" onclick="downloadTrigrams()">Download</button>
 			</div>
-			<datalist id="marks">
-				<option  value = "1">
-				<option  value = "5">
-				<option  value = "10">
-				<option  value = "20">
-				<option  value = "50">
-				<option  value = "100">
-			</datalist>
-        </div>
+	    </div>
 		<div id="footer">
 			Desenvolvido por Gabrielle Piezzoti Oliveira, como projeto de extensão da UTFPR - Campo Mourão (2017).
 		</div>
 
-	<script>
-		(function() {
-			var memoryInitializer = 'project.html.mem';
-			if (typeof Module['locateFile'] === 'function') {
-				memoryInitializer = Module['locateFile'](memoryInitializer);
-			} else if (Module['memoryInitializerPrefixURL']) {
-				memoryInitializer = Module['memoryInitializerPrefixURL'] + memoryInitializer;
-			}
-			var xhr = Module['memoryInitializerRequest'] = new XMLHttpRequest();
-			xhr.open('GET', memoryInitializer, true);
-			xhr.responseType = 'arraybuffer';
-			xhr.send(null);
-		  })();
+		<script>
+			(function() {
+				var memoryInitializer = 'project.html.mem';
+				if (typeof Module['locateFile'] === 'function') {
+					memoryInitializer = Module['locateFile'](memoryInitializer);
+				} else if (Module['memoryInitializerPrefixURL']) {
+					memoryInitializer = Module['memoryInitializerPrefixURL'] + memoryInitializer;
+				}
+				var xhr = Module['memoryInitializerRequest'] = new XMLHttpRequest();
+				xhr.open('GET', memoryInitializer, true);
+				xhr.responseType = 'arraybuffer';
+				xhr.send(null);
+			  })();
 
-		  var script = document.createElement('script');
-		  script.src = "project.js";
-		  document.body.appendChild(script);
+			  var script = document.createElement('script');
+			  script.src = "project.js";
+			  document.body.appendChild(script);
 
-		  if (window.File && window.FileList && window.FileReader) {initInput();}
-	</script>
+			  if (window.File && window.FileList && window.FileReader) {initInput();}
+		</script>
 	</body>
 </html>

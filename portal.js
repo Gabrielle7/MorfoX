@@ -3,6 +3,14 @@ var trigramaSorted;
 var tags;
 var lemmas;
 var words;
+var fileSize;
+var numWords;
+var numLines;
+var sliderTag;
+var sliderLemma;
+var sliderUni;
+var sliderBi;
+var sliderTri;
 
 //drag and drop dealt as shown in https://www.sitepoint.com/html5-file-drag-and-drop/
 function initInput(){
@@ -20,12 +28,78 @@ function initInput(){
 		dragF.style.display = "block";
 		send.style.display = "none";
 	}
+
+	initSliders();
 }
 
 function dragHover(e) {
 	e.stopPropagation();
 	e.preventDefault();
 	e.target.className = (e.type == "dragover" ? "hover" : "");
+}
+
+function initSliders() {
+	sliderTag = document.getElementById('sliderTags');
+	sliderLemma = document.getElementById('sliderLemmas');
+	sliderUni = document.getElementById('sliderUni');
+	sliderBi = document.getElementById('sliderBi');
+	sliderTri = document.getElementById('sliderTri');
+
+	noUiSlider.create(sliderTag, {
+	start: [1, 10],
+	connect: true,
+	tooltips: true,
+	margin: 2,
+	step: 1,
+	range: {'min': 1, 'max': 10},
+	format: wNumb({decimals: 0})
+	});
+
+	noUiSlider.create(sliderLemma, {
+	start: [1, 10],
+	connect: true,
+	tooltips: true,
+	margin: 2,
+	step: 1,
+	range: {'min': 1, 'max': 10},
+	format: wNumb({decimals: 0})
+	});
+
+	noUiSlider.create(sliderUni, {
+	start: [1, 10],
+	connect: true,
+	tooltips: true,
+	margin: 2,
+	step: 1,
+	range: {'min': 1, 'max': 10},
+	format: wNumb({decimals: 0})
+	});
+
+	noUiSlider.create(sliderBi, {
+	start: [1, 10],
+	connect: true,
+	tooltips: true,
+	margin: 2,
+	step: 1,
+	range: {'min': 1, 'max': 10},
+	format: wNumb({decimals: 0})
+	});
+
+	noUiSlider.create(sliderTri, {
+	start: [1, 10],
+	connect: true,
+	tooltips: true,
+	margin: 2,
+	step: 1,
+	range: {'min': 1, 'max': 10},
+	format: wNumb({decimals: 0})
+	});
+
+	sliderTag.noUiSlider.on('change', showTags);
+	sliderLemmas.noUiSlider.on('change', showLemmas);
+	sliderUni.noUiSlider.on('change', showUnigram);
+	sliderBi.noUiSlider.on('change', showBigram);
+	sliderTri.noUiSlider.on('change', showTrigram);
 }
 
 function setWaiting(text){
@@ -39,6 +113,7 @@ function setWaiting(text){
 	document.getElementById('statusLabel').innerHTML = text;
 }
 
+
 function loadFile(e){
 	setWaiting("Carregando Arquivo");
 	dragHover(e);
@@ -48,6 +123,7 @@ function loadFile(e){
 	else
 		file = e.target.files[0];
 	var reader = new FileReader();
+	fileSize = file.size;
 	reader.onload = function() {
 		var dataview = new Uint8Array(reader.result);
 		var stream = FS.open('/freeling/file.txt', 'w+');
@@ -82,6 +158,8 @@ function ngrams(array){
 	var bigramas = {};
 	var trigramas = {};
 	var gram;
+	numLines = 0;
+	numWords = 0;
 	var re = /([a-zA-Z\u00C0-\u017F ]|-?\d+([\.,]\d+)?%?)/gu;
 	var text = "";
 	for (var i = 0; i < array.length; i++)
@@ -90,9 +168,11 @@ function ngrams(array){
 	var lines = text.toLowerCase().split(/\r\n|\r|\n/);
 	for(var i = 0; i < lines.length; i++) {
 		if (lines[i] != ""){
+			numLines += 1;
 			var line = lines[i].match(re).join("");
 			var words = line.split(" ");
 			if (words.length > 0) {
+				numWords += words.length;
 				for (var j = 0; j < words.length-1; j++){
 					gram = words.slice(j,j+2).join(" ");
 					if (bigramas.hasOwnProperty(gram))
@@ -122,87 +202,105 @@ function resultSetup(){
 	words = FS.readFile('/analysis/palavras.txt', {encoding:'utf8'}).split(/\r?\n/);
 	lemmas = FS.readFile('/analysis/lemmas.txt', {encoding:'utf8'}).split(/\r?\n/);
 	tags = FS.readFile('/analysis/tags.txt', {encoding:'utf8'}).split(/\r?\n/);
+	words.splice(words.length-1, 1);
+	lemmas.splice(lemmas.length-1, 1);
+	tags.splice(tags.length-1, 1);
 
-	document.getElementById("slideTags").max = tags.length-1;
-	if ((tags.length-1) < 10)
-		document.getElementById("slideTags").value = tags.length-1;
-	else
-		document.getElementById("slideTags").value = 10;
-	document.getElementById('labelT').innerHTML = document.getElementById("slideTags").value + '/' + (tags.length-1);
+	document.getElementById("tagLabel").innerHTML = "Etiquetas ("+tags.length+")";
+	document.getElementById("lemmaLabel").innerHTML = "Lemas ("+lemmas.length+")";
+	document.getElementById("uniLabel").innerHTML = "Unigramas ("+words.length+")";
+	document.getElementById("biLabel").innerHTML = "Bigramas ("+bigramaSorted.length+")";
+	document.getElementById("triLabel").innerHTML = "Trigramas ("+trigramaSorted.length+")";
 
-	document.getElementById("slideLemmas").max = lemmas.length-1;
-	if ((lemmas.length-1) < 10)
-		document.getElementById("slideLemmas").value = lemmas.length-1;
-	else
-		document.getElementById("slideLemmas").value = 10;
-	document.getElementById('labelL').innerHTML = document.getElementById("slideLemmas").value + '/' + (lemmas.length-1);
+	sliderTag.noUiSlider.updateOptions({
+		range: {
+			'min': 1,
+			'max': tags.length
+		}
+	});
+	sliderTag.noUiSlider.set([1, 10]);
 
-	document.getElementById("slideUni").max = words.length-1;
-	if ((words.length-1) < 10)
-		document.getElementById("slideUni").value = words.length-1;
-	else
-		document.getElementById("slideUni").value = 10;
-	document.getElementById('labelU').innerHTML = document.getElementById("slideUni").value + '/' + (words.length-1);
+	sliderLemma.noUiSlider.updateOptions({
+		range: {
+			'min': 1,
+			'max': lemmas.length
+		}
+	});
+	sliderLemma.noUiSlider.set([1, 10]);
 
-	document.getElementById("slideBi").max = bigramaSorted.length;
-	if (bigramaSorted.length-1 < 10)
-		document.getElementById("slideBi").value = bigramaSorted.length;
-	else
-		document.getElementById("slideBi").value = 10;
-	document.getElementById('labelB').innerHTML = (document.getElementById("slideBi").value + '/' + bigramaSorted.length);
+	sliderUni.noUiSlider.updateOptions({
+		range: {
+			'min': 1,
+			'max': words.length
+		}
+	});	
+	sliderUni.noUiSlider.set([1, 10]);
+	
+	sliderBi.noUiSlider.updateOptions({
+		range: {
+			'min': 1,
+			'max': bigramaSorted.length
+		}
+	});
+	sliderBi.noUiSlider.set([1, 10]);
 
-	document.getElementById("slideTri").max = trigramaSorted.length;
-	if (trigramaSorted.length-1 < 10)
-		document.getElementById("slideTri").value = trigramaSorted.length;
-	else
-		document.getElementById("slideTri").value = 10;
-	document.getElementById('labelTri').innerHTML = (document.getElementById("slideTri").value + '/' + trigramaSorted.length);
+	sliderTri.noUiSlider.updateOptions({
+		range: {
+			'min': 1,
+			'max': trigramaSorted.length
+		}
+	});
+	sliderTri.noUiSlider.set([1, 10]);
 	
 	showResults();
 }
 
 function showResults(){
-	showLemmas(document.getElementById('slideLemmas').value);
-	showTags(document.getElementById('slideTags').value);
-	showWords(document.getElementById('slideUni').value);
-	showBigram(document.getElementById('slideBi').value);
-	showTrigram(document.getElementById('slideTri').value);
+	document.getElementById('info').innerHTML = "Número de palavras: " +numWords+ " | Número de linhas: " +numLines+ " | Tamanho do arquivo: " +fileSize + "bytes";
+	
+	showTags(document.getElementById("sliderTags").noUiSlider.get());
+	showLemmas(document.getElementById("sliderLemmas").noUiSlider.get());
+	showUnigram(document.getElementById("sliderUni").noUiSlider.get());
+	showBigram(document.getElementById("sliderBi").noUiSlider.get());
+	showTrigram(document.getElementById("sliderTri").noUiSlider.get());
 
 	document.getElementById('box').style.visibility = 'visible';
+	document.getElementById('info').style.visibility = 'visible';
 	setWaiting();
 }
 
-function showTrigram(value){
+
+function showTrigram(values){
 	var text = "";
-	for (var i = 0; i < value && i < trigramaSorted.length; i++)
+	for (var i = parseInt(values[0])-1; i < parseInt(values[1]); i++)
 		text += trigramaSorted[i].join(":") + "<br>";
 	document.getElementById('trigramasText').innerHTML = text;
 }
 
-function showBigram(value){
+function showBigram(values){
 	var text = "";
-	for (var i = 0; i < value && i < bigramaSorted.length; i++)
+	for (var i = parseInt(values[0])-1; i < parseInt(values[1]); i++)
 		text += bigramaSorted[i].join(":") + "<br>";
 	document.getElementById('bigramasText').innerHTML = text;
 }
 
-function showWords(value){
+function showUnigram(values){
 	var text = "";
-	for (var i = 0; i < value && i < words.length; i++)
+	for (var i = parseInt(values[0])-1; i < parseInt(values[1]); i++)
 		text += words[i] + "<br>";
 	document.getElementById('wordsText').innerHTML = text;
 }
 
-function showLemmas(value){
+function showLemmas(values){
 	var text = "";
-	for (var i = 0; i < value && i < lemmas.length; i++)
+	for (var i = parseInt(values[0])-1; i < parseInt(values[1]); i++)
 		text += lemmas[i] + "<br>";
 	document.getElementById('lemmasText').innerHTML = text;
 }
 
-function showTags(value){
+function showTags(values){
 	var text = "";
-	for (var i = 0; i < value && i < tags.length; i++)
+	for (var i = parseInt(values[0])-1; i < parseInt(values[1]); i++)
 		text += tags[i] + "<br>";
 	document.getElementById('tagsText').innerHTML = text;
 }
@@ -223,7 +321,7 @@ function searchLemmas(value){
 	document.getElementById('lemmasText').innerHTML = text;		
 }
 
-function searchWords(value){
+function searchUnigram(value){
 	var text = "";
 	for (var i = 0; i < words.length; i++)
 		if (words[i].toLowerCase().indexOf(value.toLowerCase()) !== -1)
@@ -273,7 +371,7 @@ function downloadLemmas(){
 	document.body.removeChild(hiddenElement);	
 }
 
-function downloadWords(){
+function downloadUnigrams(){
 	var hiddenElement = document.createElement('a');
 	var content = "";
 	for (var i in words)
