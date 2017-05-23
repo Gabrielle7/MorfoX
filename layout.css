@@ -111,6 +111,7 @@ p {
     font-weight: bold;
     color: lightblue;
     font-size: large;
+	z-index: 687;
 }
 
 .results {

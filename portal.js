@@ -377,7 +377,7 @@ function downloadUnigrams(){
 	for (var i in words)
 		content += words[i].replace(":", ", ") + "\r\n";
 	hiddenElement.href = 'data:text/plain,' + encodeURIComponent(content);
-	hiddenElement.download = "palavras.txt";
+	hiddenElement.download = "unigramas.txt";
 	hiddenElement.target = "_blank";
 	document.body.appendChild(hiddenElement);
 	hiddenElement.click();
