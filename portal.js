@@ -168,6 +168,7 @@ function ngrams(array){
 	var lines = text.toLowerCase().split(/\r\n|\r|\n/);
 	for(var i = 0; i < lines.length; i++) {
 		if (lines[i] != ""){
+		   try{
 			numLines += 1;
 			var line = lines[i].match(re).join("");
 			var words = line.split(" ");
@@ -188,6 +189,10 @@ function ngrams(array){
 						trigramas[gram] = 1;
 				}
 			}
+		   } catch(e){
+			   console.log(e);
+			   console.log(lines[i]);
+		   }
 		}
 	}
 
